@@ -1,2 +1,2 @@
-Redirect /setup /setup.ps1
-Redirect /builds/setup /builds/setup.ps1
+Redirect /setup /scripts/setup.ps1
+Redirect /builds/setup /builds/scripts/setup.ps1
