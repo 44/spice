@@ -9,7 +9,7 @@ Execute in your terminal:
 === "Windows"
 
     ```cmd
-    powershell "iex (iwr https://tools.svnx.dev/setup/windows).Content"
+    powershell "iex (iwr https://tools.svnx.dev/setup/spice/windows).Content"
     ```
 
 ## Submitting build
