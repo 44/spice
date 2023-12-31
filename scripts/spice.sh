@@ -3,6 +3,19 @@
 #    status
 #    active
 export PATH="$PATH":/usr/local/bin
+BRANCH=$1
+COMMAND=$2
+shift
+shift
+if [[ -f $HOME/spice/$COMMAND.sh ]]; then
+    echo
+    sh $HOME/spice/$COMMAND.sh $BRANCH $@ || exit 1
+else
+    echo "Unknown command $COMMAND"
+    exit 1
+fi
+
+exit
 # Assign ID using mktemp
 BRANCH=$2
 BUILD_DIR=$(mktemp -d $HOME/reports/status/XXXX)
