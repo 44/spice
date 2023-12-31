@@ -1,3 +1,5 @@
 #!/usr/bin/env sh
 
-echo "Hello spicy!"
+ME="$(basename $(realpath "$0"))"
+
+echo "Hello spicy from $ME"
