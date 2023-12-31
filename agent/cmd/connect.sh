@@ -1,32 +1,35 @@
 #!/bin/sh
-source $HOME/spice/check.sh silent
+source $SPICE_SCIPTS/cmd/check.sh silent
+
 BRANCH=$1
-mkdir -p $HOME/state
-echo "$BRANCH" >$HOME/state/current-spice-session
-cd $HOME/build
+echo "$BRANCH" >$SPICE_STATE/current-spice-session
+
+cd $SPICE_REPO
+
 echo "Cleaning worktree"
 git checkout -- $(git ls-files --modified)
 git clean -f
+
 echo "Checking out $BRANCH"
 git -c advice.detachedHead=false checkout $(git show-ref -s refs/heads/$BRANCH)
+
 echo "Unlocking keychain"
 security unlock-keychain -p null $HOME/Library/Keychains/ODSPMacBuildKeychain.keychain-db
 
 echo "Configuring offline mode"
-# export NUGET_SKIP_RESTORE=yes
-export SYSTEM_ACCESSTOKEN=irrelevant
-nuget sources add -Name "offline" -Source "/Volumes/data/offline/nuget" -ConfigFile $HOME/.CxCache/NugetCache/nuget_server.config
-nuget sources disable -Name "OneDrive.Client-Aggregate" -ConfigFile $HOME/.CxCache/NugetCache/nuget_server.config
+
+# export SYSTEM_ACCESSTOKEN=irrelevant
+# nuget sources add -Name "offline" -Source "/Volumes/data/offline/nuget" -ConfigFile $HOME/.CxCache/NugetCache/nuget_server.config
+# nuget sources disable -Name "OneDrive.Client-Aggregate" -ConfigFile $HOME/.CxCache/NugetCache/nuget_server.config
 
 if [[ -f "$(brew --prefix nvm)/nvm.sh" ]]; then
-    echo "Loading nvm"
+    echo "Activating node@18 using nvm"
     source $(brew --prefix nvm)/nvm.sh
-    echo "Loading node"
     nvm use 18
 fi
 
-yarn config set yarn-offline-mirror "/Volumes/data/offline/yarn"
-yarn config set offline true
+# yarn config set yarn-offline-mirror "/Volumes/data/offline/yarn"
+#yarn config set offline true
 
 echo "Configuring Xcode"
 defaults write com.apple.dt.xcodebuild PBXNumberOfParallelBuildSubtasks 4
@@ -34,13 +37,16 @@ defaults write com.apple.dt.xcodebuild IDEBuildOperationMaxNumberOfConcurrentCom
 defaults write com.apple.dt.Xcode PBXNumberOfParallelBuildSubtasks 4
 defaults write com.apple.dt.Xcode IDEBuildOperationMaxNumberOfConcurrentCompileTasks 4
 
-lolcat $HOME/spice/msg/welcome.txt
+lolcat $SPICE_SCRIPTS/msg/welcome.txt
 
 export SPICE_REPO=$(pwd)
-#TODO: configure
-export SPICE_LOGS=$HOME/reports/logs
 
-cat $HOME/spice/msg/connect.md | envsubst | bat -p --file-name connect.md
+#TODO: configure
+export SPICE_LOGS=$SPICE_STATE/logs
+mkdir -p $SPICE_LOGS
+export LOGS=$SPICE_LOGS
+
+cat $SPICE_SCRIPTS/msg/connect.md | envsubst | bat -p --file-name connect.md
 
 #TODO: should be in path
 export XCBUILDFILTER=$HOME/.local/bin/upretty
@@ -48,4 +54,4 @@ ln -s $SPICE_REPO/client/onedrive/Product/SyncEngine/mac/Scripts/od ~/.local/bin
 export PATH="$HOME/.local/bin:$PATH"
 /bin/zsh -i
 
-rm $HOME/state/current-spice-session
+rm $SPICE_STATE/current-spice-session
