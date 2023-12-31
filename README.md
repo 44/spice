@@ -1,12 +1,16 @@
-# Spice Mac builds
+# spice
+
+Spice helps you build and test your changes remotely on a shared Mac machine
 
 ## Installation
 
 Execute in your terminal:
 
-```cmd
-powershell "iex (iwr https://mac.svnx.dev/builds/setup).Content"
-```
+=== "Windows"
+
+    ```cmd
+    powershell "iex (iwr https://tools.svnx.dev/setup/windows).Content"
+    ```
 
 ## Submitting build
 
