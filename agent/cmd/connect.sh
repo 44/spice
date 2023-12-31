@@ -1,5 +1,5 @@
 #!/bin/sh
-source $SPICE_SCIPTS/cmd/check.sh silent
+source $SPICE_SCRIPTS/cmd/check.sh silent
 
 BRANCH=$1
 echo "$BRANCH" >$SPICE_STATE/current-spice-session
