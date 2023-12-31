@@ -18,7 +18,7 @@ if not exist "%LOCALAPPDATA%\Microsoft\Spice\launcher.sh" (
     echo "Failed to download launcher"
     goto :EOF
 ) else (
-    REM "%GIT_BIN%\bash.exe" "%LOCALAPPDATA%\Microsoft\Spice\launcher.sh" %*
+    "%GIT_BIN%\bash.exe" "%LOCALAPPDATA%\Microsoft\Spice\launcher.sh" %*
 )
 
 :EOF

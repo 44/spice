@@ -12,8 +12,8 @@ echo "git sync needed: $git_sync_needed"
 if [[ "$git_sync_needed" == "yes" ]]; then
     GIT_STATUS=$(git status --porcelain)
     if [[ ! -z "$GIT_STATUS" ]]; then
+        git status --short
         echo "Working tree is dirty, forgot to commit your changes?"
-        git status
         read -p "Continue? [y/N]" response
         if [[ "$response" != "y" ]]; then
             exit 1
