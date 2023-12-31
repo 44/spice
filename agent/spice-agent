@@ -1,6 +1,11 @@
 #!/usr/bin/env zsh
 
-SPICE_SCRIPTS="${0:A:h}"
+export SPICE_SCRIPTS="${0:A:h}"
+
+if [[ "$#" -lt 2 ]]; then
+    echo "Usage: $0 <branch> <command> [args]"
+    exit 1
+fi
 
 BRANCH=$1
 COMMAND=$2
