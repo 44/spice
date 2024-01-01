@@ -7,7 +7,7 @@ if [[ "$#" -lt 2 ]]; then
     exit 1
 fi
 
-BRANCH=$1
+export SPICE_BRANCH=$1
 COMMAND=$2
 
 shift
@@ -15,7 +15,7 @@ shift
 
 if [[ -f $SPICE_SCRIPTS/cmd/$COMMAND.sh ]]; then
     echo
-    sh $SPICE_SCRIPTS/cmd/$COMMAND.sh $BRANCH $@ || exit 1
+    sh $SPICE_SCRIPTS/cmd/$COMMAND.sh $@ || exit 1
 else
     echo "Unknown command $COMMAND"
     exit 1

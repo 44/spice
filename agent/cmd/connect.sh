@@ -1,17 +1,10 @@
 #!/bin/sh
 source $SPICE_SCRIPTS/cmd/check.sh silent
 
-BRANCH=$1
-echo "$BRANCH" >$SPICE_STATE/current-spice-session
+echo "$SPICE_BRANCH" >$SPICE_STATE/current-spice-session
 
 cd $SPICE_REPO
-
-echo "Cleaning worktree"
-git checkout -- $(git ls-files --modified)
-git clean -f
-
-echo "Checking out $BRANCH"
-git -c advice.detachedHead=false checkout $(git show-ref -s refs/heads/$BRANCH)
+prepare_repo
 
 echo "Unlocking keychain"
 security unlock-keychain -p null $HOME/Library/Keychains/ODSPMacBuildKeychain.keychain-db
@@ -50,7 +43,7 @@ cat $SPICE_SCRIPTS/msg/connect.md | envsubst | bat -p --file-name connect.md
 
 #TODO: should be in path
 export XCBUILDFILTER=$HOME/.local/bin/upretty
-ln -s $SPICE_REPO/client/onedrive/Product/SyncEngine/mac/Scripts/od ~/.local/bin/dev
+ln -f -s $SPICE_REPO/client/onedrive/Product/SyncEngine/mac/Scripts/od ~/.local/bin/dev
 export PATH="$HOME/.local/bin:$PATH"
 /bin/zsh -i
 

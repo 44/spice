@@ -1,4 +1,17 @@
-SPICE_BUILD="spice@mac.svnx.dev"
+[ -z "$SPICE_HOST" ] && SPICE_HOST=spice@mac.svnx.dev
+
+echo "Testing connection"
+CONNECTED_OVER_SSH=$(ssh -oBatchMode=yes $SPICE_HOST echo connected)
+if [[ "$CONNECTED_OVER_SSH" != "connected" ]]; then
+    echo "Public key authentication is not configured"
+    read -p "Configure it? [Y/n]" response
+    if [[ "$response" != "n" ]]; then
+        cat $HOME/.ssh/id_rsa.pub | ssh $SPICE_HOST 'cat >>.ssh/authorized_keys'
+    fi
+fi
+
+ssh -oBatchMode=yes @SPICE_HOST spice-agent irrelevant info "$@" | source /dev/stdin
+
 SPICE_REMOTE="spice@mac.svnx.dev:build"
 
 git_sync_needed=yes
@@ -26,16 +39,6 @@ if [[ "$git_sync_needed" == "yes" ]]; then
         git remote remove spice 2>/dev/null
         git remote add spice $SPICE_REMOTE
         echo "Remote spice $SPICE_REMOTE added"
-    fi
-fi
-
-echo "Testing connection"
-CONNECTED_OVER_SSH=$(ssh -oBatchMode=yes $SPICE_BUILD echo connected)
-if [[ "$CONNECTED_OVER_SSH" != "connected" ]]; then
-    echo "Public key authentication is not configured"
-    read -p "Configure it? [Y/n]" response
-    if [[ "$response" != "n" ]]; then
-        cat $HOME/.ssh/id_rsa.pub | ssh $SPICE_BUILD 'cat >>.ssh/authorized_keys'
     fi
 fi
 
@@ -82,7 +85,7 @@ if [[ "$git_sync_needed" == "yes" ]]; then
     echo "Your branch $GIT_BRANCH is pushed to spice"
 fi
 
-ssh -o LogLevel=QUIET -tt $SPICE_BUILD ./spice/spice.sh $GIT_BRANCH_TARGET "$@"
+ssh -o LogLevel=QUIET -tt $SPICE_HOST ./spice/spice.sh $GIT_BRANCH_TARGET "$@"
 
 exit
 
@@ -159,4 +162,4 @@ public static extern bool GetConsoleMode(IntPtr handle, out int mode);
 
 $enabled = Enable-ANSIEscapes
 
-ssh -o LogLevel=QUIET -t $SPICE_BUILD ./spice/spice.sh $GIT_BRANCH_TARGET "$args"
+ssh -o LogLevel=QUIET -t $SPICE_HOST ./spice/spice.sh $GIT_BRANCH_TARGET "$args"
