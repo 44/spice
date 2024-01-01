@@ -13,3 +13,10 @@ function prepare_repo() {
     git -c advice.detachedHead=false checkout $(git show-ref -s refs/heads/$SPICE_BRANCH)
 }
 
+function prepare_workspace() {
+    SPICE_WORKSPACE=$(echo $SPICE_BRANCH | sed -e 's|^spice/||' | sed -e 's|/.*||')
+    echo "Preparing workspace $SPICE_WORKSPACE"
+    mkdir -p $SPICE_STATE/ws/$SPICE_WORKSPACE
+    export SPICE_LOGS=$SPICE_STATE/ws/$SPICE_WORKSPACE
+    export LOGS=$SPICE_LOGS
+}

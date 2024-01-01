@@ -1,3 +1,4 @@
+# set -x
 [ -z "$SPICE_HOST" ] && SPICE_HOST=spice@mac.svnx.dev
 
 echo "Testing connection"
@@ -10,23 +11,20 @@ if [[ "$CONNECTED_OVER_SSH" != "connected" ]]; then
     fi
 fi
 
-ssh -oBatchMode=yes @SPICE_HOST spice-agent irrelevant info "$@" | source /dev/stdin
+eval "$(ssh $SPICE_HOST spice-agent irrelevant info "$@")"
 
-SPICE_REMOTE="spice@mac.svnx.dev:build"
+SPICE_REMOTE=$SPICE_HOST:$SPICE_REPO
 
-git_sync_needed=yes
 GIT_BRANCH_TARGET=unknown
 
-[[ "$1" == "help" ]] && git_sync_needed=no
-[[ "$1" == "check" ]] && git_sync_needed=no
+[[ "$1" == "help" ]] && SPICE_REPO_SYNC=no
+[[ "$1" == "check" ]] && SPICE_REPO_SYNC=no
 
-echo "git sync needed: $git_sync_needed"
-
-if [[ "$git_sync_needed" == "yes" ]]; then
+if [[ "$SPICE_REPO_SYNC" == "yes" ]]; then
     GIT_STATUS=$(git status --porcelain)
     if [[ ! -z "$GIT_STATUS" ]]; then
+        git status --short
         echo "Working tree is dirty, forgot to commit your changes?"
-        git status
         read -p "Continue? [y/N]" response
         if [[ "$response" != "y" ]]; then
             exit 1
@@ -40,9 +38,7 @@ if [[ "$git_sync_needed" == "yes" ]]; then
         git remote add spice $SPICE_REMOTE
         echo "Remote spice $SPICE_REMOTE added"
     fi
-fi
 
-if [[ "$git_sync_needed" == "yes" ]]; then
     echo "Refreshing spice"
     GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
     if [[ ! "$GIT_BRANCH" =~ ^user/ ]]; then
@@ -52,8 +48,9 @@ if [[ "$git_sync_needed" == "yes" ]]; then
             exit 1
         fi
     fi
+    GIT_USER=$(git config user.email | sed -e 's/@.*//' | sed -e 's/[^a-zA-Z]/_/')
     GIT_BRANCH_SHORT_NAME=$(echo $GIT_BRANCH | sed -E 's/[^\/]*\/[^\/]*\///')
-    GIT_BRANCH_TARGET="spice/$USERNAME/$GIT_BRANCH_SHORT_NAME"
+    GIT_BRANCH_TARGET="spice/$GIT_USER/$GIT_BRANCH_SHORT_NAME"
     if [[ -z "$USE_STASH" ]]; then
         git branch --force $GIT_BRANCH_TARGET HEAD
     else
@@ -85,7 +82,7 @@ if [[ "$git_sync_needed" == "yes" ]]; then
     echo "Your branch $GIT_BRANCH is pushed to spice"
 fi
 
-ssh -o LogLevel=QUIET -tt $SPICE_HOST ./spice/spice.sh $GIT_BRANCH_TARGET "$@"
+ssh -o LogLevel=QUIET -tt $SPICE_HOST spice-agent $GIT_BRANCH_TARGET "$@"
 
 exit
 
@@ -104,7 +101,7 @@ git stash apply $STASH_REF
 git stash drop $STASH_REF
 
 
-if ( $git_sync_needed ) {
+if ( $SPICE_REPO_SYNC ) {
     Write-Host "Refreshing spice"
     $GIT_BRANCH=git rev-parse --abbrev-ref HEAD
 
